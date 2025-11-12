@@ -1,18 +1,23 @@
 import type { Request, Response } from 'express';
 import { ZodError } from 'zod';
-import { skillService } from './skill.service';
-import { createSkillSchema, updateSkillSchema, listSkillsQuerySchema } from './skill.dto';
+import { challengeService } from './challenge.service';
+import { createChallengeSchema, updateChallengeSchema, listChallengesQuerySchema } from './challenge.dto';
 import { sendError, sendSuccess } from '../../lib/apiResponse';
 import { parsePagination } from '../../lib/pagination';
-import { NotFoundError, ConflictError, ValidationError } from '../../lib/errors';
+import { NotFoundError, ConflictError } from '../../lib/errors';
 
-export const getSkills = async (req: Request, res: Response): Promise<void> => {
+export const getChallengesBySkill = async (req: Request, res: Response): Promise<void> => {
   try {
-    const query = listSkillsQuerySchema.parse(req.query);
+    const skillId = req.params.skillId || (req as any).params?.skillId;
+    if (!skillId) {
+      sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'skillId is required' });
+      return;
+    }
+    const query = listChallengesQuerySchema.parse(req.query);
     const { page, limit } = parsePagination(req.query);
-    const isActive = query.isActive ?? true;
+    const sort = query.sort || 'orderIndex';
 
-    const result = await skillService.list({ isActive, page, limit });
+    const result = await challengeService.listBySkill(skillId, { page, limit, sort });
 
     sendSuccess(res, {
       items: result.items,
@@ -26,15 +31,20 @@ export const getSkills = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    if (error instanceof NotFoundError) {
+      sendError(res, 404, { code: 'NOT_FOUND', message: error.message });
+      return;
+    }
+
     sendError(res, 500, { code: 'INTERNAL_ERROR', message: 'Internal server error' });
   }
 };
 
-export const getSkillById = async (req: Request, res: Response): Promise<void> => {
+export const getChallengeById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const skill = await skillService.getById(id);
-    sendSuccess(res, skill);
+    const challenge = await challengeService.getById(id);
+    sendSuccess(res, challenge);
   } catch (error) {
     if (error instanceof NotFoundError) {
       sendError(res, 404, { code: 'NOT_FOUND', message: error.message });
@@ -45,32 +55,16 @@ export const getSkillById = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const createSkill = async (req: Request, res: Response): Promise<void> => {
+export const createChallenge = async (req: Request, res: Response): Promise<void> => {
   try {
-    const data = createSkillSchema.parse(req.body);
-    const skill = await skillService.create(data);
-    sendSuccess(res, skill, 201);
-  } catch (error) {
-    if (error instanceof ZodError) {
-      sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'Validation failed' });
+    const skillId = req.params.skillId || (req as any).params?.skillId;
+    if (!skillId) {
+      sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'skillId is required' });
       return;
     }
-
-    if (error instanceof ConflictError) {
-      sendError(res, 409, { code: 'CONFLICT', message: error.message });
-      return;
-    }
-
-    sendError(res, 500, { code: 'INTERNAL_ERROR', message: 'Internal server error' });
-  }
-};
-
-export const updateSkill = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const data = updateSkillSchema.parse(req.body);
-    const skill = await skillService.update(id, data);
-    sendSuccess(res, skill);
+    const data = createChallengeSchema.parse(req.body);
+    const challenge = await challengeService.create(skillId, data);
+    sendSuccess(res, challenge, 201);
   } catch (error) {
     if (error instanceof ZodError) {
       sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'Validation failed' });
@@ -91,10 +85,36 @@ export const updateSkill = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const deleteSkill = async (req: Request, res: Response): Promise<void> => {
+export const updateChallenge = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    await skillService.softDelete(id);
+    const data = updateChallengeSchema.parse(req.body);
+    const challenge = await challengeService.update(id, data);
+    sendSuccess(res, challenge);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'Validation failed' });
+      return;
+    }
+
+    if (error instanceof NotFoundError) {
+      sendError(res, 404, { code: 'NOT_FOUND', message: error.message });
+      return;
+    }
+
+    if (error instanceof ConflictError) {
+      sendError(res, 409, { code: 'CONFLICT', message: error.message });
+      return;
+    }
+
+    sendError(res, 500, { code: 'INTERNAL_ERROR', message: 'Internal server error' });
+  }
+};
+
+export const deleteChallenge = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await challengeService.delete(id);
     sendSuccess(res, { success: true });
   } catch (error) {
     if (error instanceof NotFoundError) {
@@ -105,3 +125,4 @@ export const deleteSkill = async (req: Request, res: Response): Promise<void> =>
     sendError(res, 500, { code: 'INTERNAL_ERROR', message: 'Internal server error' });
   }
 };
+

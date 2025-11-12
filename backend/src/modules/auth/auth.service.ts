@@ -3,15 +3,13 @@ import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 
 import env from '../../config/env';
-import prisma from '../../lib/prisma';
+import { prisma } from '../../config/prisma';
 import { Prisma } from '@prisma/client';
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  bio: string | null;
-  avatarUrl: string | null;
 }
 
 export interface LoginResult {
@@ -94,9 +92,11 @@ export const login = async (email: string, password: string): Promise<LoginResul
     throw new UnauthorizedError('Invalid credentials');
   }
 
-  const accessToken = jwt.sign({ sub: user.id }, env.jwtAccessSecret, {
-    expiresIn: env.jwtAccessExpiresIn,
-  });
+  const accessToken = jwt.sign(
+    { sub: user.id },
+    env.jwtAccessSecret,
+    { expiresIn: env.jwtAccessExpiresIn } as jwt.SignOptions,
+  );
 
   const refreshToken = randomBytes(48).toString('hex');
   const expiresInMs = parseExpiresInToMilliseconds(env.jwtRefreshExpiresIn);
@@ -115,8 +115,6 @@ export const login = async (email: string, password: string): Promise<LoginResul
       id: user.id,
       name: user.name,
       email: user.email,
-      bio: user.bio,
-      avatarUrl: user.avatarUrl,
     },
     accessToken,
     refreshToken,
@@ -147,9 +145,11 @@ export const refreshAccessToken = async (refreshToken: string): Promise<string> 
     throw new UnauthorizedError('Invalid refresh token');
   }
 
-  const accessToken = jwt.sign({ sub: user.id }, env.jwtAccessSecret, {
-    expiresIn: env.jwtAccessExpiresIn,
-  });
+  const accessToken = jwt.sign(
+    { sub: user.id },
+    env.jwtAccessSecret,
+    { expiresIn: env.jwtAccessExpiresIn } as jwt.SignOptions,
+  );
 
   return accessToken;
 };
@@ -167,8 +167,6 @@ export const getUserProfile = async (userId: string): Promise<AuthUser> => {
       id: true,
       name: true,
       email: true,
-      bio: true,
-      avatarUrl: true,
     },
   });
 

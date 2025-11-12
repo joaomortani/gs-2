@@ -3,17 +3,28 @@ import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import env from '../config/env';
 import { sendError } from '../lib/apiResponse';
+import { prisma } from '../config/prisma';
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        role: string;
+      };
+    }
+  }
+}
 
 function unauthorized(res: Response): void {
   sendError(res, 401, { code: 'UNAUTHORIZED', message: 'Unauthorized' });
 }
 
-export function authMiddleware(
+export async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction,
-): void {
+): Promise<void> {
   const authorization = req.header('authorization');
 
   if (!authorization) {
@@ -44,9 +55,37 @@ export function authMiddleware(
       return;
     }
 
-    req.user = { id: userId };
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true },
+    });
+
+    if (!user) {
+      unauthorized(res);
+      return;
+    }
+
+    req.user = { id: user.id, role: user.role };
     next();
   } catch (error) {
     unauthorized(res);
   }
+}
+
+export function requireAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
+  if (!req.user) {
+    sendError(res, 401, { code: 'UNAUTHORIZED', message: 'Unauthorized' });
+    return;
+  }
+
+  if (req.user.role !== 'admin') {
+    sendError(res, 403, { code: 'FORBIDDEN', message: 'Forbidden' });
+    return;
+  }
+
+  next();
 }

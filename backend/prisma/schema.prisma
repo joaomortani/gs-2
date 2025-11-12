@@ -7,54 +7,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  passwordHash  String
-  role          String   @default("user")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  challengeProgress  UserChallengeProgress[]
-  skillAssessments   UserSkillAssessment[]
+  id                String                  @id @default(cuid())
+  name              String
+  email             String                  @unique
+  passwordHash      String
+  role              String                  @default("user")
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  challengeProgress UserChallengeProgress[]
+  skillAssessments  UserSkillAssessment[]
+  refreshTokens     RefreshToken[]
 }
 
-
 model Skill {
-  id          String       @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   challenges  Challenge[]
   assessments UserSkillAssessment[]
 }
 
 model Challenge {
-  id          String       @id @default(cuid())
+  id          String   @id @default(cuid())
   skillId     String
-  skill       Skill        @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skill       Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
   title       String
   description String
   orderIndex  Int
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  progress    UserChallengeProgress[]
+  progress UserChallengeProgress[]
 }
 
 model UserChallengeProgress {
-     id          String     @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   challengeId String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challenge   Challenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  status      String     
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  status      String
   doneAt      DateTime?
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime  @default(now())
 }
 
 model UserSkillAssessment {
@@ -67,4 +66,13 @@ model UserSkillAssessment {
   scoreCurrent Int
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
