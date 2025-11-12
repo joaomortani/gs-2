@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:16
+    container_name: gs_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gsuser
+      POSTGRES_PASSWORD: gspass
+      POSTGRES_DB: gsdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gs_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # garante que dentro do container o host do banco é "db"
+      DATABASE_URL: postgres://gsuser:gspass@db:5432/gsdb?schema=public
+    depends_on:
+      - db
+    ports:
+      - "3333:3333"
+    # opcional: para dev, montar código
+    volumes:
+      - ./backend:/usr/src/app
+
+volumes:
+  postgres_data:

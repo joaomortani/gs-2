@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  role          String   @default("user")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  challengeProgress  UserChallengeProgress[]
+  skillAssessments   UserSkillAssessment[]
+}
+
+
+model Skill {
+  id          String       @id @default(cuid())
+  name        String
+  description String
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  challenges  Challenge[]
+  assessments UserSkillAssessment[]
+}
+
+model Challenge {
+  id          String       @id @default(cuid())
+  skillId     String
+  skill       Skill        @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  orderIndex  Int
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  progress    UserChallengeProgress[]
+}
+
+model UserChallengeProgress {
+     id          String     @id @default(cuid())
+  userId      String
+  challengeId String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge   Challenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  status      String     
+  doneAt      DateTime?
+  createdAt   DateTime   @default(now())
+}
+
+model UserSkillAssessment {
+  id           String   @id @default(cuid())
+  userId       String
+  skillId      String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill        Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  scoreInitial Int
+  scoreCurrent Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
