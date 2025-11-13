@@ -32,26 +32,36 @@ railway run npx prisma migrate deploy
 
 Isso vai executar o comando dentro do container do Railway com todas as variáveis de ambiente configuradas.
 
-## 🖥️ Solução Alternativa: Via Railway Dashboard
+## 🖥️ Solução Alternativa: Via Railway Dashboard (RECOMENDADO)
 
-### Opção 1: Executar comando no deployment
+### Método 1: Via Terminal do Serviço
 
 1. Vá no Railway Dashboard
-2. Selecione seu serviço backend
-3. Vá em "Deployments"
-4. Clique no deployment mais recente
-5. Vá em "Settings" ou "Shell"
-6. Execute:
+2. Selecione seu serviço **backend**
+3. Vá em **"Deployments"** → clique no deployment mais recente
+4. Procure por **"Shell"** ou **"Terminal"** (geralmente na parte inferior)
+5. Execute:
    ```bash
+   cd /usr/src/app
    npx prisma migrate deploy
    ```
 
-### Opção 2: Usar o terminal do serviço
+### Método 2: Via Script
 
-1. No Railway Dashboard
-2. Selecione seu serviço backend
-3. Vá em "Settings" → "Shell" (ou procure por "Terminal")
-4. Execute:
+1. No Railway Dashboard, vá no serviço backend
+2. Abra o Terminal/Shell
+3. Execute:
+   ```bash
+   cd /usr/src/app
+   sh apply-migrations.sh
+   ```
+
+### Método 3: Via Settings → Run Command
+
+Alguns projetos Railway têm uma opção "Run Command":
+1. Vá em **Settings** do serviço backend
+2. Procure por **"Run Command"** ou **"Execute Command"**
+3. Execute:
    ```bash
    npx prisma migrate deploy
    ```
