@@ -8,10 +8,10 @@ RUN npm install -g prisma
 # Copia package e lock primeiro para cache
 COPY package*.json ./
 
-RUN npm install
-
-# Copia schema do Prisma
+# Copia schema do Prisma ANTES do npm install (para o postinstall funcionar)
 COPY prisma ./prisma
+
+RUN npm install
 
 
 
@@ -23,8 +23,8 @@ RUN chmod +x docker-entrypoint.sh
 # Copia resto do código
 COPY . .
 
-# Fazer build do TypeScript
-RUN npm run build
+# Gerar Prisma Client e fazer build do TypeScript
+RUN npx prisma generate && npm run build
 
 EXPOSE 3333
 
