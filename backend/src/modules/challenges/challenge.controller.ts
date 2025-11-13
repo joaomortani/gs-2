@@ -8,7 +8,8 @@ import { NotFoundError, ConflictError } from '../../lib/errors';
 
 export const getChallengesBySkill = async (req: Request, res: Response): Promise<void> => {
   try {
-    const skillId = req.params.skillId || (req as any).params?.skillId;
+    // skillId vem do parâmetro da rota montada em app.ts: /api/skills/:skillId/challenges
+    const skillId = req.params.skillId;
     if (!skillId) {
       sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'skillId is required' });
       return;
@@ -57,7 +58,8 @@ export const getChallengeById = async (req: Request, res: Response): Promise<voi
 
 export const createChallenge = async (req: Request, res: Response): Promise<void> => {
   try {
-    const skillId = req.params.skillId || (req as any).params?.skillId;
+    // skillId vem do parâmetro da rota montada em app.ts: /api/skills/:skillId/challenges
+    const skillId = req.params.skillId;
     if (!skillId) {
       sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'skillId is required' });
       return;

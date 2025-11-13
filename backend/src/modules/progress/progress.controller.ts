@@ -75,7 +75,25 @@ export const getHistory = async (req: Request, res: Response): Promise<void> => 
     const query = listHistoryQuerySchema.parse(req.query);
     const limit = Math.min(20, Math.max(1, Number(query.limit) || 20));
     const history = await progressService.getHistory(req.user.id, limit);
-    sendSuccess(res, { items: history });
+    
+    // Formatar history para incluir apenas dados necessários
+    const formattedHistory = history.map((item) => ({
+      id: item.id,
+      userId: item.userId,
+      challengeId: item.challenge.id,
+      status: item.status,
+      doneAt: item.doneAt?.toISOString() || null,
+      createdAt: item.createdAt.toISOString(),
+      challenge: {
+        id: item.challenge.id,
+        title: item.challenge.title,
+        description: item.challenge.description,
+        orderIndex: item.challenge.orderIndex,
+        skillId: item.challenge.skillId,
+      },
+    }));
+    
+    sendSuccess(res, formattedHistory);
   } catch (error) {
     if (error instanceof ZodError) {
       sendError(res, 400, { code: 'VALIDATION_ERROR', message: 'Validation failed' });

@@ -10,7 +10,11 @@ export const getSkills = async (req: Request, res: Response): Promise<void> => {
   try {
     const query = listSkillsQuerySchema.parse(req.query);
     const { page, limit } = parsePagination(req.query);
-    const isActive = query.isActive ?? true;
+    // Se isActive vier como string 'true' ou 'false', converter para boolean
+    // Se não vier ou vier como undefined, deixar undefined para retornar todas
+    const isActive = query.isActive !== undefined 
+      ? query.isActive === 'true' || query.isActive === true 
+      : undefined;
 
     const result = await skillService.list({ isActive, page, limit });
 

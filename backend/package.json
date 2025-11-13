@@ -4,11 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only --no-notify --inspect=0.0.0.0:9229 src/server.ts | tee /dev/stdout",
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "ts-node src/scripts/seed.ts"
+    "test:backend": "ts-node src/scripts/test-backend.ts",
+    "seed": "ts-node src/scripts/seed.ts",
+    "setup:env": "ts-node src/scripts/setup-env.ts",
+    "create:admin": "ts-node src/scripts/create-admin.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +27,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/jsonwebtoken": "^9.0.10",

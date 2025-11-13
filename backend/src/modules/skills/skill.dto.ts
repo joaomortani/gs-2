@@ -17,7 +17,7 @@ export const updateSkillSchema = z.object({
 export type UpdateSkillDTO = z.infer<typeof updateSkillSchema>;
 
 export const listSkillsQuerySchema = z.object({
-  isActive: z.string().optional().transform((val: string | undefined) => val === 'true'),
+  isActive: z.string().optional(),
   page: z.string().optional(),
   limit: z.string().optional(),
 });

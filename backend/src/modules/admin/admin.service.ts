@@ -1,4 +1,5 @@
 import { adminRepository } from './admin.repository';
+import { NotFoundError } from '../../lib/errors';
 
 export const adminService = {
   async getOverview() {
@@ -15,6 +16,16 @@ export const adminService = {
       challenges,
       completionsLast30d,
     };
+  },
+
+  async getUserAssessments(userId: string) {
+    const assessments = await adminRepository.getUserAssessments(userId);
+    return assessments;
+  },
+
+  async getUserProgress(userId: string) {
+    const progress = await adminRepository.getUserProgress(userId);
+    return progress;
   },
 };
 

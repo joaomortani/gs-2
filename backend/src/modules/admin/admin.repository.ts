@@ -28,5 +28,46 @@ export const adminRepository = {
       },
     });
   },
+
+  async getUserAssessments(userId: string) {
+    return prisma.userSkillAssessment.findMany({
+      where: { userId },
+      include: {
+        skill: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  },
+
+  async getUserProgress(userId: string) {
+    const progress = await prisma.userChallengeProgress.findMany({
+      where: { userId },
+      include: {
+        challenge: {
+          include: {
+            skill: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return progress;
+  },
 };
 

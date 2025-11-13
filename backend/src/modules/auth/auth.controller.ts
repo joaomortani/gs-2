@@ -1,10 +1,11 @@
 import type { Request, Response } from 'express';
 import { ZodError } from 'zod';
 
-import { loginSchema, refreshTokenSchema } from './auth.dto';
+import { loginSchema, registerSchema, refreshTokenSchema } from './auth.dto';
 import {
   NotFoundError,
   UnauthorizedError,
+  ConflictError,
   getUserProfile,
   login as loginService,
   refreshAccessToken,
@@ -101,8 +102,9 @@ export const me = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password } = req.body;
   try {
+    const { name, email, password } = registerSchema.parse(req.body);
+
     const result = await registerUserService(name, email, password);
 
     sendSuccess(res, result);
@@ -114,6 +116,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    sendError(res, 500, { code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' });
+    // Tratar erro de usuário já existente
+    if (error instanceof ConflictError) {
+      sendError(res, 409, { code: 'CONFLICT', message: error.message });
+      return;
+    }
+
+    // Log do erro para debug
+    console.error('Erro ao registrar usuário:', error);
+    sendError(res, 500, { code: 'INTERNAL_SERVER_ERROR', message: 'Failed to create user' });
   }
 };

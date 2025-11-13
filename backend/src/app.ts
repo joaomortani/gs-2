@@ -7,6 +7,7 @@ import { challengeRoutes, skillChallengeRoutes } from "./modules/challenges/chal
 import { progressRoutes } from "./modules/progress/progress.routes";
 import { adminRoutes } from "./modules/admin/admin.routes";
 import { userRoutes } from "./modules/users/user.routes";
+import { assessmentRoutes } from "./modules/assessment/assessment.routes";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/api/skills", skillRoutes);
 app.use("/api/skills/:skillId/challenges", skillChallengeRoutes);
 app.use("/api/challenges", challengeRoutes);
 app.use("/api", progressRoutes);
+app.use("/api/assessment", assessmentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);

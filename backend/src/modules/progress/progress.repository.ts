@@ -85,29 +85,38 @@ export const progressRepository = {
       progressBySkill.set(skillId, (progressBySkill.get(skillId) || 0) + 1);
     }
 
-    // Calcular percentuais
+    // Retornar no formato SkillWithProgress
     return skills.map((skill) => {
-      const totalChallenges = skill.challenges.length;
+      const total = skill.challenges.length;
       const completed = progressBySkill.get(skill.id) || 0;
-      const progressPercent = totalChallenges > 0 
-        ? Math.floor((completed / totalChallenges) * 100)
+      const percentage = total > 0 
+        ? Math.round((completed / total) * 100)
         : 0;
 
       return {
-        skillId: skill.id,
-        skillName: skill.name,
-        totalChallenges,
-        completedChallenges: completed,
-        progressPercent,
+        id: skill.id,
+        name: skill.name,
+        description: skill.description,
+        isActive: skill.isActive,
+        createdAt: skill.createdAt.toISOString(),
+        updatedAt: skill.updatedAt.toISOString(),
+        progress: {
+          completed,
+          total,
+          percentage,
+        },
       };
     });
   },
 
   async listRecent(userId: string, limit: number) {
     return prisma.userChallengeProgress.findMany({
-      where: { userId },
+      where: { 
+        userId,
+        status: 'done', // Retornar apenas desafios concluídos
+      },
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { doneAt: 'desc' },
       include: {
         challenge: {
           include: {

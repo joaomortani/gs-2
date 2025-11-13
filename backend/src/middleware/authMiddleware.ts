@@ -57,10 +57,17 @@ export async function authMiddleware(
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, role: true },
+      select: { id: true, role: true, isActive: true },
     });
 
     if (!user) {
+      console.error(`[AUTH] User not found: ${userId}`);
+      unauthorized(res);
+      return;
+    }
+
+    if (!user.isActive) {
+      console.error(`[AUTH] User is inactive: ${userId} (role: ${user.role})`);
       unauthorized(res);
       return;
     }
@@ -68,6 +75,13 @@ export async function authMiddleware(
     req.user = { id: user.id, role: user.role };
     next();
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      console.error('[AUTH] JWT Error:', error.message);
+    } else if (error instanceof jwt.TokenExpiredError) {
+      console.error('[AUTH] Token expired');
+    } else {
+      console.error('[AUTH] Unknown error:', error);
+    }
     unauthorized(res);
   }
 }

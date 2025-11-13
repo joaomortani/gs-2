@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gsuser -d gsdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -22,15 +27,29 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      # garante que dentro do container o host do banco é "db"
       DATABASE_URL: postgres://gsuser:gspass@db:5432/gsdb?schema=public
+      # Forçar output não-bufferizado
+      NODE_ENV: development
+      PYTHONUNBUFFERED: 1  # Para garantir output não-bufferizado
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "3333:3333"
-    # opcional: para dev, montar código
+    # Configuração de logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
+      # IMPORTANTE: Volume nomeado PRIMEIRO para garantir que sobrescreva o bind mount
+      - backend_node_modules:/usr/src/app/node_modules
+      - backend_prisma:/usr/src/app/node_modules/.prisma
+      # Bind mount do código DEPOIS
       - ./backend:/usr/src/app
 
 volumes:
   postgres_data:
+  backend_node_modules:
+  backend_prisma:

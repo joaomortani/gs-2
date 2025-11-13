@@ -1,0 +1,139 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "text": "Você se sente confortável explicando um projeto para outras pessoas?",
+      "skillMapping": {
+        "Comunicação": 3,
+        "Liderança": 1,
+        "Trabalho em Equipe": 1
+      }
+    },
+    {
+      "id": 2,
+      "text": "Como você lida com feedback negativo?",
+      "skillMapping": {
+        "Comunicação": 1,
+        "Trabalho em Equipe": 2,
+        "Liderança": 1
+      }
+    },
+    {
+      "id": 3,
+      "text": "Consegue trabalhar facilmente com pessoas desconhecidas?",
+      "skillMapping": {
+        "Trabalho em Equipe": 3,
+        "Comunicação": 2,
+        "Liderança": 1
+      }
+    },
+    {
+      "id": 4,
+      "text": "Você costuma tomar a iniciativa em situações de conflito?",
+      "skillMapping": {
+        "Liderança": 3,
+        "Trabalho em Equipe": 2,
+        "Comunicação": 1
+      }
+    },
+    {
+      "id": 5,
+      "text": "Consegue expressar suas ideias de forma clara e objetiva?",
+      "skillMapping": {
+        "Comunicação": 3,
+        "Liderança": 1,
+        "Trabalho em Equipe": 1
+      }
+    },
+    {
+      "id": 6,
+      "text": "Prefere trabalhar sozinho ou em equipe?",
+      "skillMapping": {
+        "Trabalho em Equipe": 3,
+        "Comunicação": 1,
+        "Liderança": 1
+      }
+    },
+    {
+      "id": 7,
+      "text": "Você se sente confortável liderando um grupo de pessoas?",
+      "skillMapping": {
+        "Liderança": 3,
+        "Trabalho em Equipe": 2,
+        "Comunicação": 1
+      }
+    },
+    {
+      "id": 8,
+      "text": "Consegue ouvir atentamente quando alguém está falando?",
+      "skillMapping": {
+        "Comunicação": 3,
+        "Trabalho em Equipe": 2,
+        "Liderança": 1
+      }
+    },
+    {
+      "id": 9,
+      "text": "Você ajuda colegas quando eles têm dificuldades?",
+      "skillMapping": {
+        "Trabalho em Equipe": 3,
+        "Liderança": 2,
+        "Comunicação": 1
+      }
+    },
+    {
+      "id": 10,
+      "text": "Consegue motivar outras pessoas a alcançarem objetivos?",
+      "skillMapping": {
+        "Liderança": 3,
+        "Comunicação": 2,
+        "Trabalho em Equipe": 1
+      }
+    }
+  ],
+  "answerOptions": [
+    {
+      "value": 1,
+      "label": "Nunca",
+      "score": 1
+    },
+    {
+      "value": 2,
+      "label": "Raramente",
+      "score": 2
+    },
+    {
+      "value": 3,
+      "label": "Às vezes",
+      "score": 3
+    },
+    {
+      "value": 4,
+      "label": "Frequentemente",
+      "score": 4
+    },
+    {
+      "value": 5,
+      "label": "Sempre",
+      "score": 5
+    }
+  ],
+  "skillLevels": {
+    "fraco": {
+      "min": 0,
+      "max": 15,
+      "label": "Fraco"
+    },
+    "medio": {
+      "min": 16,
+      "max": 30,
+      "label": "Médio"
+    },
+    "forte": {
+      "min": 31,
+      "max": 50,
+      "label": "Forte"
+    }
+  }
+}
+

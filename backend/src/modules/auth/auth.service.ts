@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 
@@ -10,6 +10,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  role: string;
 }
 
 export interface LoginResult {
@@ -35,6 +36,16 @@ export class NotFoundError extends Error {
     super(message);
     this.name = 'NotFoundError';
     this.statusCode = 404;
+  }
+}
+
+export class ConflictError extends Error {
+  statusCode: number;
+
+  constructor(message = 'Resource already exists') {
+    super(message);
+    this.name = 'ConflictError';
+    this.statusCode = 409;
   }
 }
 
@@ -86,6 +97,10 @@ export const login = async (email: string, password: string): Promise<LoginResul
     throw new UnauthorizedError('Invalid credentials');
   }
 
+  if (!user.isActive) {
+    throw new UnauthorizedError('User is inactive');
+  }
+
   const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
   if (!passwordMatches) {
@@ -115,6 +130,7 @@ export const login = async (email: string, password: string): Promise<LoginResul
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role,
     },
     accessToken,
     refreshToken,
@@ -137,12 +153,17 @@ export const refreshAccessToken = async (refreshToken: string): Promise<string> 
 
   const user = await prisma.user.findUnique({
     where: { id: storedToken.userId },
-    select: { id: true },
+    select: { id: true, isActive: true },
   });
 
   if (!user) {
     await prisma.refreshToken.delete({ where: { id: storedToken.id } });
     throw new UnauthorizedError('Invalid refresh token');
+  }
+
+  if (!user.isActive) {
+    await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+    throw new UnauthorizedError('User is inactive');
   }
 
   const accessToken = jwt.sign(
@@ -167,6 +188,7 @@ export const getUserProfile = async (userId: string): Promise<AuthUser> => {
       id: true,
       name: true,
       email: true,
+      role: true,
     },
   });
 
@@ -179,21 +201,31 @@ export const getUserProfile = async (userId: string): Promise<AuthUser> => {
 
 export const registerUser = async (name: string, email: string, password: string): Promise<AuthUser> => {
   try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    
     const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash: await bcrypt.hash(password, 10),
-    },
-  });
+      data: {
+        name,
+        email,
+        passwordHash,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
 
     return user;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
-        throw new Error('User already exists');
+        // P2002 é o código de erro do Prisma para violação de constraint única
+        throw new ConflictError('User with this email already exists');
       }
     }
+    console.error('Erro ao criar usuário:', error);
     throw new Error('Failed to create user');
   }
 };

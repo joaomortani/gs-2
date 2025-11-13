@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.env
+.env.local
+dist
+.git
+.gitignore
+*.md
+.DS_Store
+coverage
+.vscode
+.idea
+# Manter docker-entrypoint.sh e prisma/
+!docker-entrypoint.sh
+!prisma/
+
