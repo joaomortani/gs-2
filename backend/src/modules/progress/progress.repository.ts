@@ -86,7 +86,7 @@ export const progressRepository = {
     }
 
     // Retornar no formato SkillWithProgress
-    return skills.map((skill) => {
+    return skills.map((skill: typeof skills[0]) => {
       const total = skill.challenges.length;
       const completed = progressBySkill.get(skill.id) || 0;
       const percentage = total > 0 

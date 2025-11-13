@@ -4,7 +4,7 @@ import { randomBytes } from 'crypto';
 
 import env from '../../config/env';
 import { prisma } from '../../config/prisma';
-import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 export interface AuthUser {
   id: string;
@@ -218,8 +218,8 @@ export const registerUser = async (name: string, email: string, password: string
     });
 
     return user;
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  } catch (error: unknown) {
+    if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
         // P2002 é o código de erro do Prisma para violação de constraint única
         throw new ConflictError('User with this email already exists');
