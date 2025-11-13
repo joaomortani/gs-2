@@ -1,7 +1,7 @@
 [build]
 root = "./backend/"
 builder = "NIXPACKS"
-buildCommand = "npm install && npm run build && npx prisma generate"
+buildCommand = "npm install && npm run build"
 
 [start]
-command = "sh docker-entrypoint.sh && npm start"
+command = "sh docker-entrypoint.sh npm start"

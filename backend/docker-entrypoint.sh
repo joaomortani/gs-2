@@ -89,11 +89,22 @@ for dep in zod ts-node-dev @prisma/client express; do
   fi
 done
 
-# Gerar Prisma Client
+# Gerar Prisma Client - CRÍTICO: deve ser executado antes de iniciar
 echo "🔧 Gerando Prisma Client..."
-npx prisma generate || {
-  echo "⚠️  Aviso: Erro ao gerar Prisma Client (pode ser normal se o banco não estiver pronto)"
-}
+if ! npx prisma generate; then
+  echo "❌ ERRO: Falha ao gerar Prisma Client. Abortando..."
+  exit 1
+fi
+
+# Verificar se o Prisma Client foi gerado corretamente
+if [ ! -d "node_modules/.prisma/client" ] && [ ! -f "node_modules/@prisma/client/index.js" ]; then
+  echo "⚠️  Prisma Client não encontrado após generate. Tentando novamente..."
+  npx prisma generate || {
+    echo "❌ ERRO: Falha ao gerar Prisma Client na segunda tentativa. Abortando..."
+    exit 1
+  }
+fi
+echo "✅ Prisma Client gerado com sucesso"
 
 # Fazer build do TypeScript se dist não existir
 if [ ! -d "dist" ] || [ ! -f "dist/server.js" ]; then

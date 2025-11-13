@@ -7,6 +7,7 @@
     "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only --no-notify --inspect=0.0.0.0:9229 src/server.ts | tee /dev/stdout",
     "build": "tsc",
     "start": "node dist/server.js",
+    "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:backend": "ts-node src/scripts/test-backend.ts",
     "seed": "ts-node src/scripts/seed.ts",
