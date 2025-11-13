@@ -95,6 +95,14 @@ npx prisma generate || {
   echo "⚠️  Aviso: Erro ao gerar Prisma Client (pode ser normal se o banco não estiver pronto)"
 }
 
+# Fazer build do TypeScript se dist não existir
+if [ ! -d "dist" ] || [ ! -f "dist/server.js" ]; then
+  echo "🔨 Fazendo build do TypeScript..."
+  npm run build || {
+    echo "⚠️  Aviso: Erro ao fazer build do TypeScript"
+  }
+fi
+
 # Aplicar migrations do Prisma
 # O comando 'migrate deploy' aplica apenas migrations pendentes (não cria novas)
 # É seguro executar múltiplas vezes e ele tem retry interno

@@ -23,13 +23,13 @@ RUN chmod +x docker-entrypoint.sh
 # Copia resto do código
 COPY . .
 
-# NÃO fazer build aqui - o código será montado via volume
-# RUN npm run build
+# Fazer build do TypeScript
+RUN npm run build
 
 EXPOSE 3333
 
 # Usar entrypoint para gerar Prisma Client no container
 # Usar sh para garantir que funcione mesmo se o arquivo não tiver permissão de execução
 ENTRYPOINT ["sh", "docker-entrypoint.sh"]
-# Usar --inspect=0.0.0.0 para debug e --no-notify para logs mais limpos
-CMD ["npm", "run", "dev"]
+# Usar start para produção (executa dist/server.js)
+CMD ["npm", "start"]
