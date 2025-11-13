@@ -114,6 +114,25 @@ if [ ! -d "dist" ] || [ ! -f "dist/server.js" ]; then
   }
 fi
 
+# Verificar conexão com o banco antes de aplicar migrations
+echo "🔍 Verificando conexão com o banco de dados..."
+if [ -z "$DATABASE_URL" ]; then
+  echo "❌ ERRO: DATABASE_URL não está definida!"
+  echo "   Configure a variável de ambiente DATABASE_URL no Railway"
+  exit 1
+fi
+
+# Mascarar senha para exibição
+MASKED_URL=$(echo "$DATABASE_URL" | sed 's/:\([^:@]*\)@/:****@/')
+echo "   DATABASE_URL: $MASKED_URL"
+
+# Tentar conectar (com timeout)
+echo "🔄 Testando conexão..."
+if ! timeout 10 npx prisma db execute --stdin <<< "SELECT 1;" > /dev/null 2>&1; then
+  echo "⚠️  Não foi possível testar a conexão diretamente (pode ser normal)"
+  echo "   Continuando com as migrations..."
+fi
+
 # Aplicar migrations do Prisma
 # O comando 'migrate deploy' aplica apenas migrations pendentes (não cria novas)
 # É seguro executar múltiplas vezes e ele tem retry interno
@@ -126,6 +145,11 @@ npx prisma migrate deploy || {
   echo "   - As migrations já foram aplicadas anteriormente"
   echo "   - O banco ainda não está totalmente pronto (tente novamente)"
   echo "   - Há um problema de conexão com o banco"
+  echo ""
+  echo "   Verifique:"
+  echo "   1. Se a DATABASE_URL está correta no Railway"
+  echo "   2. Se o banco de dados está acessível"
+  echo "   3. Se as credenciais estão corretas"
   echo ""
   echo "   Você pode aplicar manualmente com: docker-compose exec backend npx prisma migrate deploy"
 }

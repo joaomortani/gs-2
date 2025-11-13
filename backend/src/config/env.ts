@@ -27,10 +27,30 @@ const parsedEnv = envSchema.safeParse({
 
 if (!parsedEnv.success) {
   const formattedErrors = parsedEnv.error.issues
-    .map((error) => `${error.path.join('.')}: ${error.message}`)
-    .join('; ');
+    .map((error) => {
+      const path = error.path.join('.');
+      const message = error.message;
+      
+      // Mensagens mais amigáveis para variáveis faltando
+      if (message.includes('required')) {
+        return `${path}: ${message}\n   Configure esta variável no Railway (Variables → New Variable)`;
+      }
+      
+      return `${path}: ${message}`;
+    })
+    .join('\n');
 
-  throw new Error(`Invalid environment configuration: ${formattedErrors}`);
+  console.error('\n❌ Erro de configuração de ambiente:\n');
+  console.error(formattedErrors);
+  console.error('\n📝 Variáveis necessárias:');
+  console.error('   - DATABASE_URL (obtenha do serviço PostgreSQL no Railway)');
+  console.error('   - JWT_ACCESS_SECRET (gere: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))")');
+  console.error('   - JWT_REFRESH_SECRET (gere um valor diferente)');
+  console.error('   - JWT_ACCESS_EXPIRES (ex: 15m)');
+  console.error('   - JWT_REFRESH_EXPIRES (ex: 7d)');
+  console.error('\n📖 Veja RAILWAY_SETUP.md para mais detalhes\n');
+
+  throw new Error(`Invalid environment configuration:\n${formattedErrors}`);
 }
 
 const env = {
