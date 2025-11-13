@@ -139,20 +139,42 @@ fi
 echo "🔄 Aplicando migrations do Prisma..."
 echo "   (Aguardando banco estar pronto e aplicando migrations pendentes...)"
 
-npx prisma migrate deploy || {
-  echo "⚠️  Aviso: Erro ao aplicar migrations"
-  echo "   Isso pode ser normal se:"
-  echo "   - As migrations já foram aplicadas anteriormente"
-  echo "   - O banco ainda não está totalmente pronto (tente novamente)"
-  echo "   - Há um problema de conexão com o banco"
+# Tentar aplicar migrations com retry (até 3 tentativas)
+MAX_RETRIES=3
+RETRY_COUNT=0
+MIGRATION_SUCCESS=false
+
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+  if npx prisma migrate deploy; then
+    echo "✅ Migrations aplicadas com sucesso!"
+    MIGRATION_SUCCESS=true
+    break
+  else
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+      echo "⚠️  Tentativa $RETRY_COUNT/$MAX_RETRIES falhou. Tentando novamente em 5 segundos..."
+      sleep 5
+    fi
+  fi
+done
+
+if [ "$MIGRATION_SUCCESS" = false ]; then
+  echo "❌ ERRO: Falha ao aplicar migrations após $MAX_RETRIES tentativas"
   echo ""
-  echo "   Verifique:"
-  echo "   1. Se a DATABASE_URL está correta no Railway"
-  echo "   2. Se o banco de dados está acessível"
-  echo "   3. Se as credenciais estão corretas"
+  echo "   Possíveis causas:"
+  echo "   1. DATABASE_URL incorreta ou não configurada"
+  echo "   2. Banco de dados não está acessível"
+  echo "   3. Credenciais incorretas"
+  echo "   4. Problema de rede/firewall"
   echo ""
-  echo "   Você pode aplicar manualmente com: docker-compose exec backend npx prisma migrate deploy"
-}
+  echo "   Para aplicar manualmente via Railway CLI:"
+  echo "   railway run npx prisma migrate deploy"
+  echo ""
+  echo "   Ou via Railway Dashboard:"
+  echo "   1. Vá em Deployments → seu deployment → Settings"
+  echo "   2. Execute: npx prisma migrate deploy"
+  exit 1
+fi
 
 echo "✅ Entrypoint concluído. Iniciando aplicação..."
 exec "$@"
