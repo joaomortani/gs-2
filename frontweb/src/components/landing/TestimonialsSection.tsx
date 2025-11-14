@@ -50,7 +50,7 @@ export default function TestimonialsSection() {
             >
               <Quote className="w-8 h-8 text-primary/30 mb-4" />
               <p className="text-text-secondary mb-6 leading-relaxed italic">
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
