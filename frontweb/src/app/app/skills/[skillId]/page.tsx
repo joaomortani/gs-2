@@ -52,17 +52,17 @@ export default function SkillDetailPage() {
         : (historyResponse.data as any)?.items || [];
       
       // Filtrar apenas desafios completados (status 'done') desta skill
-      const completed = new Set(
-        history
-          .filter((item: any) => {
-            const challengeSkillId = item.challenge?.skillId || item.challengeId;
-            return challengeSkillId && 
-                   item.challenge?.skillId === skillId && 
-                   item.status === 'done';
-          })
-          .map((item: any) => item.challengeId || item.challenge?.id)
-          .filter((id: string) => id) // Remover undefined/null
-      );
+      const completedIds = history
+        .filter((item: any) => {
+          const challengeSkillId = item.challenge?.skillId || item.challengeId;
+          return challengeSkillId && 
+                 item.challenge?.skillId === skillId && 
+                 item.status === 'done';
+        })
+        .map((item: any) => item.challengeId || item.challenge?.id)
+        .filter((id: any): id is string => id && typeof id === 'string'); // Remover undefined/null e garantir que são strings
+      
+      const completed = new Set<string>(completedIds);
       
       setCompletedChallenges(completed);
     } catch (error) {
