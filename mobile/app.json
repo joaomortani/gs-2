@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SkillUp",
-    "slug": "skillup-mobile",
+    "slug": "skillup",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,7 +28,18 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "skillup"
+    "scheme": "skillup",
+    "extra": {
+      "eas": {
+        "projectId": "c5a66068-f80a-469c-812c-1fb0a041dd2a"
+      }
+    },
+    "owner": "joaomortani",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c5a66068-f80a-469c-812c-1fb0a041dd2a"
+    }
   }
 }
-

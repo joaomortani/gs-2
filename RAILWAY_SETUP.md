@@ -167,6 +167,40 @@ Após configurar, você pode testar a conexão verificando os logs do Railway. O
 - [ ] Deploy executado com sucesso
 - [ ] Logs mostram conexão bem-sucedida
 
+## 🚀 Executar Comandos no Railway
+
+### Criar Usuário Admin
+
+Para criar um usuário admin no Railway, você precisa executar o comando no contexto do serviço backend:
+
+**Pré-requisitos:**
+1. Tenha o Railway CLI instalado: `npm i -g @railway/cli`
+2. Esteja logado: `railway login`
+3. O serviço backend esteja linkado: `railway link` (selecione o serviço backend)
+4. A variável `DATABASE_URL` esteja configurada no serviço backend
+
+**Executar o comando:**
+```bash
+railway run npm run create:admin "Nome" email@example.com senha123
+```
+
+**Se der erro de conexão:**
+1. Verifique se você está no serviço correto: `railway service`
+2. Verifique se `DATABASE_URL` está configurada: `railway variables`
+3. Se não estiver, configure via Railway Dashboard (veja "Passo 3" acima)
+4. Ou configure via CLI:
+   ```bash
+   railway variables set DATABASE_URL="<url-do-postgresql>"
+   ```
+
+**Troubleshooting:**
+- Se o erro for "Can't reach database server", verifique:
+  1. O serviço PostgreSQL está rodando?
+  2. A `DATABASE_URL` está correta?
+  3. Você está no serviço backend (não no PostgreSQL)?
+- O script agora mostra qual `DATABASE_URL` está sendo usada (com senha mascarada)
+- Verifique os logs para mais detalhes sobre o erro
+
 ## 🔍 Verificar Logs
 
 No Railway, vá em:
